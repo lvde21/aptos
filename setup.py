@@ -4,6 +4,7 @@ setup(
     install_requires=[
         'colorama',
         'termcolor',
+        'jinja2'
     ],
     name='aptos',
     version='1.0.2',

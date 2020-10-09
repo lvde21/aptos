@@ -1,0 +1,5 @@
+{% import "macros.jinja2" as macros -%} 
+{{ obj_name }} {
+{% block object_content -%}
+{{ macros.fix_indent(body)|indent(width=2,first=True) -}}
+{% endblock -%}}

@@ -7,7 +7,8 @@ from termcolor import colored
 from .parser import SchemaParser
 from .primitive import Object
 from .visitor import ValidationVisitor
-from .schema.visitor import AvroSchemaVisitor
+from .schema.visitor import AvroSchemaVisitor, ParquetSchemaVisitor
+from .jinja_helper import JinjaHelper
 
 
 def validate(arguments):
@@ -30,8 +31,18 @@ def convert(arguments):
         sys.exit(colored('error', 'red') + ' cannot convert schema {!r} into {!r} format, schema must be of type "object"'.format(arguments.schema, arguments.format))  # noqa: E501
     Visitor = {
         'avro': AvroSchemaVisitor,
+        'parquet': ParquetSchemaVisitor
     }[arguments.format]
-    print(json.dumps(component.accept(Visitor()), indent=2))
+    converted_schema = component.accept(Visitor())
+    print_schema(arguments.format, converted_schema)
+
+
+def print_schema(schema_arg, converted_schema):
+    if schema_arg == 'avro':
+        print(json.dumps(converted_schema, indent=2))
+    elif schema_arg == 'parquet':
+        parquet_schema = JinjaHelper.get_template('inner_schema.jinja2')
+        print(parquet_schema.render(body=converted_schema))
 
 
 def main():
@@ -57,7 +68,7 @@ def main():
         'convert', help='''
         Convert a JSON Schema into a different data-interchange format''')
     conversion.add_argument(
-        '-format', type=str, choices=['avro'], help='data-interchange format')
+        '-format', type=str, choices=['avro', 'parquet'], help='data-interchange format')
     conversion.set_defaults(func=convert)
 
     parser.add_argument(

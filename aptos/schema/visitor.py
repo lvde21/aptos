@@ -1,4 +1,5 @@
 from ..primitive import Array, Object, Reference, Enumeration
+from ..jinja_helper import JinjaHelper
 
 
 class AvroSchemaVisitor:
@@ -54,3 +55,31 @@ class AvroSchemaVisitor:
 
     def visit_union(self, union, *args):
         return {'type': union.type}
+
+##-------------------------------------##
+
+class ParquetSchemaVisitor:
+
+    def determine_repetition(self, name, required_fields):
+        if name in required_fields:
+            return 'required'
+        else:
+            return 'optional'
+
+    def visit_string(self, string, *args):
+        return '{repetition} binary {name} (UTF8);\n'
+    
+    def visit_integer(self, integer, *args):
+        return '{repetition} int32 {name};\n'
+
+    def visit_object(self, obj, *args):
+        fields = ''
+        for name, member in obj.properties.items():
+            placeholder_field = member.accept(self, *args)
+            if isinstance(member, (Array, Object, Reference, Enumeration)):
+                fields += placeholder_field
+                fields += '\n'
+            else:
+                field = placeholder_field.format(repetition=self.determine_repetition(name, obj.required), name=name)
+                fields += field
+        return JinjaHelper.get_template('object.jinja2').render(obj_name=obj.title, body=fields)

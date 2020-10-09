@@ -1,0 +1,5 @@
+{% extends "schema.jinja2" -%}
+{% block schema_content -%}
+{% macro fix_indent() %}{{ body }}{% endmacro -%}
+{{ fix_indent()|indent(width=2,first=True) -}}
+{% endblock -%}

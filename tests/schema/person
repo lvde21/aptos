@@ -1,0 +1,28 @@
+{
+    "title": "Person",
+    "type": "object",
+    "properties": {
+        "firstName": {
+            "type": "string"
+        },
+        "lastName": {
+            "type": "string"
+        },
+        "age": {
+            "type" : "integer"
+        },
+        "address": {
+            "type" : "object",
+            "title": "Address",
+            "properties": {
+                "street_name": {
+                    "type": "string"
+                },
+                "zipcode": {
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    "required": [ "firstName", "age" ]
+}
