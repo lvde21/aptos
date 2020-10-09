@@ -82,4 +82,6 @@ class ParquetSchemaVisitor:
             else:
                 field = placeholder_field.format(repetition=self.determine_repetition(name, obj.required), name=name)
                 fields += field
-        return JinjaHelper.get_template('object.jinja2').render(obj_name=obj.title, body=fields)
+        obj_exp = '{repetition} group {name}'
+        obj_name = obj_exp.format(repetition=self.determine_repetition(obj.title, obj.required), name=obj.title)
+        return JinjaHelper.get_template('object.jinja2').render(obj_name=obj_name, body=fields)
